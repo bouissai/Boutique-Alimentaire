@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:/Users/cestm/Desktop/Projet sql.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="125"/><column_width id="3" width="4746"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="4,8:mainArticles"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="Articles" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="115"/><column index="2" value="112"/><column index="3" value="61"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="Commandes" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="181"/><column index="2" value="134"/><column index="3" value="91"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="Fournisseurs" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="185"/><column index="2" value="157"/><column index="3" value="185"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="TypesArticles" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="112"/><column index="2" value="90"/><column index="3" value="52"/><column index="4" value="185"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1">DROP TABLE IF EXISTS Clients ;
+DROP TABLE IF EXISTS Commandes ;
+DROP TABLE IF EXISTS ArticlesCommandes ;
+DROP TABLE IF EXISTS Articles ;
+DROP TABLE IF EXISTS TypesArticles ;
+DROP TABLE IF EXISTS Fournisseurs ;
+
+PRAGMA FOREIGN_KEYS=ON;
+--Types SQLite (TEXT = VARCHAR; REAL &amp; INTEGER = NUMBER)
+
+CREATE TABLE Clients (
+    numero_client INTEGER,
+    nom TEXT NOT NULL,
+    prenom TEXT NOT NULL,
+    adresse TEXT NOT NULL,
+    email TEXT,
+CONSTRAINT pk_client_c00 PRIMARY KEY (numero_client)
+);
+
+CREATE TABLE Commandes(
+    numero_commande INTEGER NOT NULL,
+    numero_client INTEGER NOT NULL,
+    dateC DATE NOT NULL, 
+CONSTRAINT pk_Commandes_c00 PRIMARY KEY (numero_commande),
+CONSTRAINT fk_Commandes_c01 FOREIGN KEY (numero_client) REFERENCES Clients(numero_client)
+);
+
+CREATE TABLE ArticlesCommandes(
+    code_article TEXT,
+    numero_commande INTEGER NOT NULL,
+CONSTRAINT pk_ArticlesCommandes_c00 PRIMARY KEY (code_article),
+CONSTRAINT fk_ArticlesCommandes_c01 FOREIGN KEY (code_article) REFERENCES Articles(code_article),
+CONSTRAINT fk_ArticlesCommandes_c02 FOREIGN KEY (numero_commande) REFERENCES Commandes(numero_commande) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE Fournisseurs(
+    numero_fournisseur INTEGER,
+    nom_fournisseur TEXT NOT NULL,
+    adresse_fournisseur TEXT NOT NULL,
+    CONSTRAINT pk_Fournisseurs_c00 PRIMARY KEY (numero_fournisseur)
+);
+
+CREATE TABLE TypesArticles(
+    type_article TEXT,
+    categorie TEXT NOT NULL,
+    prix REAL NOT NULL,
+    numero_fournisseur INTEGER NOT NULL,
+CONSTRAINT pk_TypesArticles_c00 PRIMARY KEY (type_article),
+CONSTRAINT fk_TypesArticles_c02 FOREIGN KEY (numero_fournisseur) REFERENCES Fournisseurs (numero_fournisseur),
+CONSTRAINT ck_TypesArticles_c03 CHECK  (categorie  in (&quot;Fruits et Legumes&quot;,&quot;Boucherie&quot;,&quot;Epicerie&quot;)),
+CONSTRAINT ck_TypeArticle_c04 CHECK (prix &gt; 0)
+);
+
+CREATE TABLE Articles(
+	code_article TEXT,
+	type_article TEXT NOT NULL,
+	statut TEXT NOT NULL,
+CONSTRAINT pk_Articles_c00 PRIMARY KEY (code_article),
+CONSTRAINT fk_Articles_c01 FOREIGN KEY (type_article) REFERENCES TypesArticles(type_article) ON DELETE CASCADE ON UPDATE CASCADE,
+CONSTRAINT ck_Articles_c03 CHECK(statut in (&quot;disponible&quot;,&quot;commande&quot;))
+);</sql><sql name="SQL 2">-- Jeux de données OK
+
+INSERT INTO Clients VALUES (0,'BOUISSA','Ilyass','4 rue de lavenue','bouissailyass@gmail.com');
+INSERT INTO Clients VALUES (1,'GUERBAA','Rayan','Rue de la paix','bibiztoz@gmail.com');
+
+INSERT INTO Commandes VALUES (1,0,'2021-04-13');
+INSERT INTO Commandes VALUES (2,1,'2021-04-14');
+
+INSERT INTO  Articles VALUES ('P1','Poulet','commande');
+INSERT INTO  Articles VALUES ('P2','Poulet','commande');
+INSERT INTO  Articles VALUES ('P3','Poulet','disponible');
+INSERT INTO  Articles VALUES ('P4','Poulet','disponible');
+INSERT INTO  Articles VALUES ('P5','Poulet','disponible');
+INSERT INTO  Articles VALUES ('M1','Merguez','commande');
+INSERT INTO  Articles VALUES ('M2','Merguez','commande');
+INSERT INTO  Articles VALUES ('M3','Merguez','commande');
+INSERT INTO  Articles VALUES ('M4','Merguez','disponible');
+INSERT INTO  Articles VALUES ('M5','Merguez','disponible');
+INSERT INTO  Articles VALUES ('S1','Sauces bbq','disponible');
+INSERT INTO  Articles VALUES ('S2','Sauces bbq','disponible');
+INSERT INTO  Articles VALUES ('H1','Harissa ki pik','disponible');
+INSERT INTO  Articles VALUES ('H2','Harissa ki pik','disponible');
+INSERT INTO  Articles VALUES ('H3','Harissa ki pik','disponible');
+
+INSERT INTO  ArticlesCommandes VALUES ('P1',1);
+INSERT INTO  ArticlesCommandes VALUES ('P2',1);
+INSERT INTO  ArticlesCommandes VALUES ('M1',1);
+INSERT INTO  ArticlesCommandes VALUES ('M2',2);
+INSERT INTO  ArticlesCommandes VALUES ('M3',2);
+
+INSERT INTO  Fournisseurs VALUES (1,'SOCOPA','Grenoble rue les 2 petits ronds');
+INSERT INTO  Fournisseurs VALUES (2,'tutunisia','Le bled en continent afrique');
+
+INSERT INTO  TypesArticles VALUES ('Poulet','Boucherie',10.5,1);
+INSERT INTO  TypesArticles VALUES ('Merguez','Boucherie',6.95,1);
+INSERT INTO  TypesArticles VALUES ('Sauces bbq','Epicerie',3,2);
+INSERT INTO  TypesArticles VALUES ('Harissa ki pik','Epicerie',3.25,2);</sql><sql name="SQL 3">-- Jeux de données NOK (ne doit pas marcher àprès avoir éxécuté le jeux de données OK)
+
+</sql><current_tab id="1"/></tab_sql></sqlb_project>
